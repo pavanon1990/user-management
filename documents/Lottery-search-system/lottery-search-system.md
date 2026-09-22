@@ -38,3 +38,6 @@ locked_until   TIMESTAMPTZ -- เวลาที่ lock จะหมดอา�
 ### Concurrency/distribution strategy explaining how duplicate results are avoided for the same pattern
 - ป้องกันตั๋วซ้ำด้วย Postgres row-level lock (SKIP LOCKED)
 - มีการสุ่มลำดับก่อนจอง เพื่อกระจายโหลดและเพิ่มความเร็วในการจอง
+
+### high-level-overview
+![High-level overview](./high-level-overview.png)
