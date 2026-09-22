@@ -1,0 +1,410 @@
+openapi: 3.0.3
+info:
+  title: User Management API
+  description: RESTful API for managing users, backed by MongoDB, with JWT-based authentication.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Auth
+  - name: Users
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+            example:
+              name: User Test
+              email: user.test@mail.com
+              password: secret123
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponseEnvelope"
+              example:
+                status: success
+                code: "201"
+                user:
+                  id: 3f9a1c2e-...
+        "400":
+          description: Invalid request body, validation error, or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+              example:
+                status: fail
+                code: "400"
+                message: email already exists
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate and receive a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            example:
+              email: user.test@mail.com
+              password: secret123
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponseEnvelope"
+              example:
+                status: success
+                code: "200"
+                user:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "400":
+          description: Invalid request body or validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+        "401":
+          description: Invalid email or password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+              example:
+                status: fail
+                code: "401"
+                message: invalid email or password
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: from
+          in: query
+          description: RFC3339 timestamp, filters users created on/after this time
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          description: RFC3339 timestamp, filters users created on/before this time
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: A page of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponseEnvelope"
+              example:
+                status: success
+                code: "200"
+                users:
+                  - id: 3f9a1c2e-...
+                    name: User Test
+                    email: user.test@mail.com
+                    created_at: "2026-09-22T10:00:00+07:00"
+                meta:
+                  limit: 20
+                  offset: 0
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get a user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: The user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    patch:
+      tags: [Users]
+      summary: Update a user's name and/or email
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+            example:
+              name: New Name
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseEnvelope"
+        "400":
+          description: Invalid request body, no fields to update, or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    delete:
+      tags: [Users]
+      summary: Delete a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                status: success
+                code: "200"
+                message: user deleted successfully
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    Unauthorized:
+      description: Missing, invalid, or expired token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FailResponse"
+          example:
+            status: fail
+            code: "401"
+            message: invalid or expired token
+    NotFound:
+      description: User not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FailResponse"
+          example:
+            status: fail
+            code: "404"
+            message: user not found
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FailResponse"
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      description: At least one of name/email must be provided.
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    RegisterResult:
+      type: object
+      properties:
+        id:
+          type: string
+
+    LoginResult:
+      type: object
+      properties:
+        token:
+          type: string
+
+    Meta:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    RegisterResponseEnvelope:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        code:
+          type: string
+        user:
+          $ref: "#/components/schemas/RegisterResult"
+
+    LoginResponseEnvelope:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        code:
+          type: string
+        user:
+          $ref: "#/components/schemas/LoginResult"
+
+    UserResponseEnvelope:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        code:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    UserListResponseEnvelope:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        code:
+          type: string
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    MessageResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        code:
+          type: string
+        message:
+          type: string
+
+    FailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        code:
+          type: string
+        message:
+          type: string
