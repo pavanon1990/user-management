@@ -1,5 +1,3 @@
-## Proposed solution architecture, data structures, and algorithms
-
 ### Solution architecture
 - CQRS (Command Query Responsibility Segregation) แยกการทำงานอย่างชัดเจนระหว่าง อ่านข้อมูลกับเขียนข้อมูล โดยฝั่งอ่านข้อมูลคือ Elasticsearch และฝั่งเขียนข้อมูลคือ RDBMS PostgreSQL
 - ใช้หลักการ Event-Driven Sync คือ การ sync ข้อมูลข้ามระบบ จาก PostgreSQL ไป Elasticsearch โดยใช้ Debezium ที่เป็น source connector ใน Apache Kafka Connect
