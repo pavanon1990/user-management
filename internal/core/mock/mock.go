@@ -61,3 +61,41 @@ func (m *MockTokenProvider) GenerateToken(userID string) (string, error) {
 func (m *MockTokenProvider) ValidateToken(token string) (string, error) {
 	return m.ValidateFn(token)
 }
+
+type MockUserService struct {
+	RegisterFn   func(ctx context.Context, user domain.RegisterInput) (string, error)
+	LoginFn      func(ctx context.Context, email, password string) (string, error)
+	GetFn        func(ctx context.Context, userID string) (entity.User, error)
+	GetListFn    func(ctx context.Context, filter *domain.ListUsersFilter) ([]entity.User, error)
+	UpdateFn     func(ctx context.Context, userID string, user domain.UpdateUserInput) (entity.User, error)
+	DeleteFn     func(ctx context.Context, userID string) error
+	CountUsersFn func(ctx context.Context) (int64, error)
+}
+
+func (m *MockUserService) Register(ctx context.Context, user domain.RegisterInput) (string, error) {
+	return m.RegisterFn(ctx, user)
+}
+
+func (m *MockUserService) Login(ctx context.Context, email, password string) (string, error) {
+	return m.LoginFn(ctx, email, password)
+}
+
+func (m *MockUserService) Get(ctx context.Context, userID string) (entity.User, error) {
+	return m.GetFn(ctx, userID)
+}
+
+func (m *MockUserService) GetList(ctx context.Context, filter *domain.ListUsersFilter) ([]entity.User, error) {
+	return m.GetListFn(ctx, filter)
+}
+
+func (m *MockUserService) Update(ctx context.Context, userID string, user domain.UpdateUserInput) (entity.User, error) {
+	return m.UpdateFn(ctx, userID, user)
+}
+
+func (m *MockUserService) Delete(ctx context.Context, userID string) error {
+	return m.DeleteFn(ctx, userID)
+}
+
+func (m *MockUserService) CountUsers(ctx context.Context) (int64, error) {
+	return m.CountUsersFn(ctx)
+}

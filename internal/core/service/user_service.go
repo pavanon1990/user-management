@@ -53,7 +53,7 @@ func (u *userService) Login(ctx context.Context, email, password string) (string
 	user, err := u.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, entity.ErrUserNotFound) {
-			return "", entity.ErrUserNotFound
+			return "", entity.ErrInvalidCredentials
 		}
 		return "", err
 	}
