@@ -1,7 +1,4 @@
 # User Management API
-
-RESTful API in Go for managing users, backed by MongoDB, with JWT-based authentication and a hexagonal (ports & adapters) architecture.
-
 ## Tech Stack and Lib
 
 - Go 1.25
@@ -67,3 +64,8 @@ The server listens on `APP_PORT` (default `8080`)
 - [JWT guide](documents/jwt-guide.md) — how to get and use a token
 - [Design decisions](documents/design-decisions.md) — assumptions and trade-offs made during implementation
 - [Local development credentials](documents/credentials.md) — local dev credentials and where they're set
+
+
+
+# Lottery Search System
+- [Lottery search system](documents/Lottery-search-system/lottery-search-system.md)
