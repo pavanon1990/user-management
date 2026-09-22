@@ -45,7 +45,7 @@ Starts both MongoDB and the API:
 docker compose up -d
 ```
 
-## Running Locally (without Docker)
+## Running Locally
 
 1. Start MongoDB.
 ```bash
