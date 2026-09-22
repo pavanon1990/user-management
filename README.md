@@ -60,3 +60,10 @@ go run ./cmd
 ```
 
 The server listens on `APP_PORT` (default `8080`)
+
+## Documentation
+
+- [API examples](documents/api-examples.md) — sample requests/responses for every endpoint
+- [JWT guide](documents/jwt-guide.md) — how to get and use a token
+- [Design decisions](documents/design-decisions.md) — assumptions and trade-offs made during implementation
+- [Local development credentials](documents/credentials.md) — local dev credentials and where they're set
