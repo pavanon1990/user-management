@@ -30,4 +30,4 @@
 
 ## การแบ่ง layer code
 - `internal/core` (entity, domain DTO, service logic, และ interface ใน `port`) ไม่มีการ import MongoDB, HTTP, หรือ JWT library 
-- กลุ่มที่มี library จะอยู่ที่ `internal/adapter` และ `internal/infra` แล้วนำมาประกอบกันที่ `cmd/main.go` เพื่อไม่ให้ Library อยู่ใน layter service logic ป้องกัน impact จากการอัพเดท Library แต่ทำตามหลักการของ Hexagonal architechure
+- กลุ่มที่มี library จะอยู่ที่ `internal/adapter` และ `internal/infra` แล้วนำมาประกอบกันที่ `cmd/main.go` เพื่อไม่ให้ Library อยู่ใน layter service logic ป้องกัน impact จากการอัพเดท Library และทำตามหลักการของ Hexagonal architechure
